@@ -7,23 +7,12 @@ const userRouter = require('./routes/userRoutes');
 
 const app = express();
 
-//1.middleware
+//1.middleware for all routes
 app.use(morgan('dev'));
 app.use(express.json());
 
-//its good practice for defining version of API
-//app.get('/api/v1/tours', getAllTours);
-//app.post('/api/v1/tours', createTour);
-// app.get('/api/v1/tours/:id', getTour);
-// app.patch('/api/v1/tours/:id', updateTour);
-// app.delete('/api/v1/tours/:id', deleteTour);
-
-//middleware routing
-//MIDDLEWARE USE -- RES,REQ
+//MIDDLEWARE USE for this specific.route-- RES,REQ
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 
-const port = 3000;
-app.listen(port, () => {
-  console.log('server started');
-});
+module.exports = app;
