@@ -1,3 +1,4 @@
+const { json } = require('express');
 const fs = require('fs');
 
 const tours = JSON.parse(
@@ -5,6 +6,28 @@ const tours = JSON.parse(
 );
 
 //2.route handler -- controller
+
+exports.checkID = (req, res, next, val) => {
+  console.log(`tour id is : ${val}`);
+  //return makes sure it will never call next()
+  if (req.params.id * 1 > tours.length) {
+    return res.status(404).json({
+      status: 'fail',
+      message: 'invalid Id',
+    });
+  }
+  next();
+};
+
+exports.checkbody = (req, res, next) => {
+  if (!req.body.name || !req.body.price) {
+    return res.status(400).json({
+      status: 'fail',
+      message: 'invalid Id',
+    });
+  }
+  next();
+};
 
 exports.getAllTours = (req, res) => {
   console.log(req.requestTime);
@@ -23,14 +46,6 @@ exports.getTour = (req, res) => {
 
   const id = req.params.id * 1;
   const tour = tours.find((el) => el.id === id);
-
-  // if (id > tours.length)
-  if (!tour) {
-    return res.status(404).json({
-      status: 'fail',
-      message: 'Invalid ID',
-    });
-  }
 
   console.log(tour);
 
@@ -63,12 +78,6 @@ exports.createTour = (req, res) => {
 };
 exports.updateTour = (req, res) => {
   //check if data exist
-  if (req.params.id * 1 > tours.length) {
-    return res.status(404).json({
-      status: 'fail',
-      message: 'invalid Id',
-    });
-  }
 
   res.status(200).json({
     status: 'sucess',
@@ -80,12 +89,6 @@ exports.updateTour = (req, res) => {
 
 exports.deleteTour = (req, res) => {
   //check if data exist
-  if (req.params.id * 1 > tours.length) {
-    return res.status(404).json({
-      status: 'fail',
-      message: 'invalid Id',
-    });
-  }
 
   //204 data doesnt exist
   res.status(204).json({

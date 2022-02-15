@@ -4,11 +4,14 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "test": "nodemon server.js"
+    "start": "nodemon server.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "do": "^0.6.2",
+    "dotenv": "^16.0.0",
+    "env": "^0.0.2",
     "express": "^4.17.2",
     "morgan": "^1.10.0"
   },
