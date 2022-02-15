@@ -2,10 +2,23 @@ const fs = require('fs');
 const express = require('express');
 
 const tours = JSON.parse(
-  fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`)
+  fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`)
 );
 
 //2.route hnadler
+
+const getAllTours = (req, res) => {
+  console.log(req.requestTime);
+  res.status(200).json({
+    status: 'success',
+    requestedAt: req.requestTime,
+    result: tours.length,
+    data: {
+      tours: tours,
+    },
+  });
+};
+
 const getTour = (req, res) => {
   console.log(req.params);
 
@@ -82,7 +95,7 @@ const deleteTour = (req, res) => {
   });
 };
 
-//const router = express.Router();
+const router = express.Router();
 
 //like mini apps with seperate routes for each resource
 router.route('/').get(getAllTours).post(createTour);
