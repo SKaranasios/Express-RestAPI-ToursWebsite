@@ -1,15 +1,14 @@
-const fs = require('fs');
 const express = require('express');
 
 //exports. --> object
 const tourController = require('./../controllers/tourController');
-//destructuring
+//or destructuring
 //const {getAllTours,...}=  require('./../controllers/tourController');
 
 const router = express.Router();
 
 //val parameter will hold parameter value
-router.param('id', tourController.checkID);
+//router.param('id', tourController.checkID);
 
 //create a checkbody middleware
 //check if body contains the name and price property
