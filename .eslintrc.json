@@ -1,6 +1,7 @@
 {
   "extends": ["airbnb", "prettier", "plugin:node/recommended"],
   "plugins": ["prettier"],
+  "env": { "commonjs": true, "es6": true, "node": true },
   "rules": {
     "prettier/prettier": "error",
     "spaced-comment": "off",
