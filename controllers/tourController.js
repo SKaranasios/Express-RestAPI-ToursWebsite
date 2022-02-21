@@ -184,6 +184,22 @@ exports.updateTour = async (req, res) => {
     });
     res.status(200).json({
       status: 'sucess',
+      // const testTour = new Tour({
+      //   name: 'The Forest Hiker',
+      //   rating: 4.9,
+      //   price: 497
+      // });
+
+      //promise that we consume
+      // testTour
+      //   .save()
+      //   .then(doc => {
+      //     console.log(doc);
+      //   })
+      //   .catch(err => {
+      //     console.log('Error', err);
+      //   });
+
       data: {
         tour
       }
