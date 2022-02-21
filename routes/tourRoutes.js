@@ -15,6 +15,13 @@ const router = express.Router();
 //if not 400 status code (bad request).
 //add it to the post handler stack
 
+router
+  .route('/top-5-cheap')
+  .get(tourController.aliasTopTours, tourController.getAllTours);
+
+router.route('/tour-stats').get(tourController.getTourStats);
+router.route('/monthly-plans/:year').get(tourController.getMonthlyPlan);
+
 //like mini apps with seperate routes for each resource
 router
   .route('/')
