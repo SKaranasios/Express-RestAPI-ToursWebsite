@@ -2,6 +2,7 @@ const express = require('express');
 
 //exports. --> object
 const tourController = require('./../controllers/tourController');
+const authController = require('./../controllers/authController');
 //or destructuring
 //const {getAllTours,...}=  require('./../controllers/tourController');
 
@@ -25,7 +26,7 @@ router.route('/monthly-plans/:year').get(tourController.getMonthlyPlan);
 //like mini apps with seperate routes for each resource
 router
   .route('/')
-  .get(tourController.getAllTours)
+  .get(authController.protect, tourController.getAllTours)
   .post(tourController.createTour);
 router
   .route('/:id')
