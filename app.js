@@ -1,5 +1,10 @@
 const express = require('express');
 const morgan = require('morgan');
+const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
+const mongoSanitize = require('express-mongo-sanitize');
+const xss = require('xss-clean');
+const hpp = require('hpp');
 
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
@@ -8,14 +13,47 @@ const userRouter = require('./routes/userRoutes');
 
 const app = express();
 
+//DEVELOPMENT LOGIN
 //console.log(process.env.NODE_ENV);
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
+const limiter = rateLimit({
+  max: 100,
+  //1 hour
+  windowMs: 60 * 60 * 1000,
+  message: 'Too many requests from this IP, please try again in an hour!'
+});
+app.use('/api', limiter);
+
+//SET SECURITY HTTP HEADERS
+app.use(helmet());
+
+// Data sanitization against NoSQL query injection
+app.use(mongoSanitize());
+
+// Data sanitization against XSS
+app.use(xss());
+
+// Prevent parameter pollution
+app.use(
+  hpp({
+    whitelist: [
+      'duration',
+      'ratingsQuantity',
+      'ratingsAverage',
+      'maxGroupSize',
+      'difficulty',
+      'price'
+    ]
+  })
+);
+
 //1.middleware for all routes
 //app.use(morgan('dev'));
-app.use(express.json());
+//BODY PARSER
+app.use(express.json({ limit: '10kb' }));
 app.use(express.static(`${__dirname}/public`));
 
 //this should come first  over other route middleware
