@@ -7,7 +7,8 @@ const {
   updateUser,
   deleteUser,
   updateMe,
-  deleteMe
+  deleteMe,
+  getMe
 } = require('./../controllers/userController');
 
 const authController = require('./../controllers/authController');
@@ -17,17 +18,19 @@ const router = express.Router();
 
 router.route('/signup').post(authController.signup);
 router.route('/login').post(authController.login);
-
 router.route('/forgotPassword').post(authController.forgotPassword);
 router.route('/resetPassword/:token').patch(authController.resetPassword);
 
-router
-  .route('/updatePassword')
-  .patch(authController.protect, authController.updatePassword);
+//Protect all routes afte this middleware
+router.use(authController.protect);
 
-router.route('/updateMe').patch(authController.protect, updateMe);
+router.route('/updateMyPassword').patch(authController.updatePassword);
 
-router.route('/deleteMe').delete(authController.protect, deleteMe);
+router.route('/me').get(getMe, getUser);
+
+router.route('/updateMe').patch(updateMe);
+
+router.route('/deleteMe').delete(deleteMe);
 
 router
   .route('/')

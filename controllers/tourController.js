@@ -2,6 +2,7 @@
 const Tour = require('./../models/tourModel');
 const APIFeatures = require('./../utils/apiFeatures');
 const catchAsync = require('./../utils/catchAsync');
+const factory = require('./handlerFactory');
 
 const AppError = require('./../utils/appError');
 
@@ -23,8 +24,8 @@ exports.aliasTopTours = (req, res, next) => {
 
 //------------------
 
-exports.getAllTours = catchAsync(async (req, res, next) => {
-  /*1A)FILTERING
+exports.getAllTours = factory.getAll(Tour);
+/*1A)FILTERING
     // const queryObj = { ...req.query };
     // const excludedFields = ['page', 'sort', 'limit', 'fields'];
     // excludedFields.forEach(el => delete queryObj[el]);
@@ -40,7 +41,7 @@ exports.getAllTours = catchAsync(async (req, res, next) => {
 
      */
 
-  /*
+/*
     2)SORTING
     //if it contains sort in it
     if (req.query.sort) {
@@ -57,7 +58,7 @@ exports.getAllTours = catchAsync(async (req, res, next) => {
 
      */
 
-  /*
+/*
     3)LIMIT
     if (req.query.fields) {
       const fields = req.query.fields.split(',').join(' ');
@@ -70,7 +71,7 @@ exports.getAllTours = catchAsync(async (req, res, next) => {
 
      */
 
-  /*
+/*
     4)PAGINATION
     const page = req.query.page * 1 || 1;
     const limit = req.query.limit * 1 || 100;
@@ -85,27 +86,13 @@ exports.getAllTours = catchAsync(async (req, res, next) => {
 
      */
 
-  //console.log(req.query);
-  //executing the query
-  const features = new APIFeatures(Tour.find(), req.query)
-    //return this ; for method chaining , so called on an instance of a class
-    .fitler()
-    .sort()
-    .limitFields()
-    .paginate();
-  const tours = await features.query;
-  //query.sort().select().skip().limit()
+// const tours = await features.query.populate({
+//   path: 'guides',
+//   select: '-__v -passwordChangedAt'
+// });
+//query.sort().select().skip().limit()
 
-  //3)RESPONSE
-  res.status(200).json({
-    status: 'success',
-    requestedAt: req.requestTime,
-    result: tours.length,
-    data: {
-      tours: tours
-    }
-  });
-  /*
+/*
     const tours = await Tour.find({
       duration: 5,
       difficulty: 'easy'
@@ -119,22 +106,9 @@ exports.getAllTours = catchAsync(async (req, res, next) => {
       .equals('easy');
 
      */
-});
 
-exports.getTour = catchAsync(async (req, res, next) => {
-  const tour = await Tour.findById(req.params.id);
-
-  res.status(200).json({
-    status: 'success',
-    data: {
-      tours: tour
-    }
-  });
-  if (!tour) {
-    return next(new AppError('No tour find with that ID!', 404));
-  }
-
-  /*
+exports.getTour = factory.getOne(Tour, { path: 'reviews' });
+/*
   const id = req.params.id * 1;
   const tour = tours.find(el => el.id === id);
   console.log(tour);
@@ -146,90 +120,18 @@ exports.getTour = catchAsync(async (req, res, next) => {
   });
 
    */
-});
+exports.createTour = factory.createOne(Tour);
+/*
+const newTour = new Tour({});
+document here has access to save method
+newTour.save();
+but in here we use create right on the model itself
+instead of using then promises we will use async await
+Tour.create({}).then()
 
-exports.createTour = catchAsync(async (req, res, next) => {
-  const newTour = await Tour.create(req.body);
-
-  res.status(201).json({
-    status: 'success',
-    data: {
-      tour: newTour
-    }
-  });
-
-  /*
-  try {
-    const newTour = await Tour.create(req.body);
-
-    res.status(201).json({
-      status: 'success',
-      data: {
-        tour: newTour
-      }
-    });
-  } catch (err) {
-    res.status(201).json({
-      status: 'failed',
-      message: err
-    });
-  }
-
-   */
-});
-// const newTour = new Tour({});
-//document here has access to save method
-// newTour.save();
-//but in here we use create right on the model itself
-//instead of using then promises we will use async await
-//Tour.create({}).then()
-
-exports.updateTour = catchAsync(async (req, res, next) => {
-  //check if data exist
-
-  const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-    runValidators: true
-  });
-  res.status(200).json({
-    status: 'sucess',
-    /*
-    const testTour = new Tour({
-      name: 'The Forest Hiker',
-      rating: 4.9,
-      price: 497
-    });
-
-    promise that we consume
-    testTour
-      .save()
-      .then(doc => {
-        console.log(doc);
-      })
-      .catch(err => {
-        console.log('Error', err);
-      });
-
-     */
-
-    data: {
-      tour
-    }
-  });
-});
-
-exports.deleteTour = catchAsync(async (req, res, next) => {
-  const tour = await Tour.findByIdAndDelete(req.params.id);
-
-  if (!tour) {
-  }
-
-  //204 data doesnt exist
-  res.status(204).json({
-    status: 'sucess',
-    data: null
-  });
-});
+ */
+exports.updateTour = factory.updateOne(Tour);
+exports.deleteTour = factory.deleteOne(Tour);
 
 exports.getTourStats = catchAsync(async (req, res, next) => {
   //returns aggeragate object
