@@ -31,6 +31,13 @@ router
     tourController.getMonthlyPlan
   );
 
+router
+  .route('/tours-within/:distance/center/:latlng/unit/:unit')
+  .get(tourController.getToursWithin);
+//tours-within/233/center/-40,34/unit/mi
+
+router.route('/distances/:latlng/unit/:unit').get(tourController.getDistances);
+
 //like mini apps with seperate routes for each resource
 router
   .route('/')

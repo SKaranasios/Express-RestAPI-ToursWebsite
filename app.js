@@ -14,6 +14,8 @@ const reviewRoutes = require('./routes/reviewRoutes');
 
 const app = express();
 
+app.set('view engine', 'pug');
+
 //DEVELOPMENT LOGIN
 //console.log(process.env.NODE_ENV);
 if (process.env.NODE_ENV === 'development') {

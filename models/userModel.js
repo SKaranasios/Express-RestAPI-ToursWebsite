@@ -6,45 +6,39 @@ const bcrypt = require('bcryptjs');
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: [true, 'Provide email']
+    required: [true, 'Please tell us your name!']
   },
   email: {
     type: String,
-    required: [true, 'Provide email'],
+    required: [true, 'Please provide your email'],
     unique: true,
     lowercase: true,
-    validate: [validator.isEmail, 'PLease provide a valid email']
+    validate: [validator.isEmail, 'Please provide a valid email']
   },
-  photo: {
-    type: String
+  photo: String,
+  role: {
+    type: String,
+    enum: ['user', 'guide', 'lead-guide', 'admin'],
+    default: 'user'
   },
   password: {
     type: String,
-    required: [true, 'Set a password'],
+    required: [true, 'Please provide a password'],
     minlength: 8,
     select: false
   },
-  role: {
-    type: String,
-    enum: ['user', 'guide', 'admin', 'lead-guide'],
-    default: 'user'
-  },
-
-  passwordChangedAt: {
-    type: Date
-  },
   passwordConfirm: {
     type: String,
-    required: [true, 'Please confirm password'],
+    required: [true, 'Please confirm your password'],
     validate: {
-      //we need to use this keyword so we don;t use arrow function
-      //this only works on create & save!!
-      validator: function(val) {
-        return val === this.password;
+      // This only works on CREATE and SAVE!!!
+      validator: function(el) {
+        return el === this.password;
       },
-      message: 'Password are not the same'
+      message: 'Passwords are not the same!'
     }
   },
+  passwordChangedAt: Date,
   passwordResetToken: String,
   passwordResetExpires: Date,
   active: {
@@ -54,14 +48,14 @@ const userSchema = new mongoose.Schema({
   }
 });
 
-//password should be in model
 userSchema.pre('save', async function(next) {
+  // Only run this function if password was actually modified
   if (!this.isModified('password')) return next();
 
-  //hash the password with cost of 12
+  // Hash the password with cost of 12
   this.password = await bcrypt.hash(this.password, 12);
 
-  //after cofirmation we no longer need the field
+  // Delete passwordConfirm field
   this.passwordConfirm = undefined;
   next();
 });
@@ -79,31 +73,29 @@ userSchema.pre(/^find/, function(next) {
   next();
 });
 
+userSchema.methods.correctPassword = async function(
+  candidatePassword,
+  userPassword
+) {
+  return await bcrypt.compare(candidatePassword, userPassword);
+};
+
 userSchema.methods.changedPasswordAfter = function(JWTTimestamp) {
   if (this.passwordChangedAt) {
     const changedTimestamp = parseInt(
       this.passwordChangedAt.getTime() / 1000,
       10
     );
-    console.log(changedTimestamp, JWTTimestamp);
+
     return JWTTimestamp < changedTimestamp;
   }
 
-  //False means not chanegd
+  // False means NOT changed
   return false;
 };
 
-userSchema.methods.correctPassword = async function(
-  canditatePassword,
-  userPassword
-) {
-  return await bcrypt.compare(canditatePassword, userPassword);
-};
-
 userSchema.methods.createPasswordResetToken = function() {
-  //kind of behaves like a password
   const resetToken = crypto.randomBytes(32).toString('hex');
-  //just like the password we need to encrypt it to store it to pass it to databse
 
   this.passwordResetToken = crypto
     .createHash('sha256')
@@ -111,8 +103,7 @@ userSchema.methods.createPasswordResetToken = function() {
     .digest('hex');
 
   console.log({ resetToken }, this.passwordResetToken);
-  //where will we save this resetToken -- we will create new attribute to our schema
-  //10 minutes
+
   this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
 
   return resetToken;

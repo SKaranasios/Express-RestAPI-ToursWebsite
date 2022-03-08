@@ -33,7 +33,8 @@ const tourSchema = new mongoose.Schema(
       type: Number,
       default: 4.5,
       min: [1, 'Rating must be above 1 '],
-      max: [5, 'Rating must be below 5']
+      max: [5, 'Rating must be below 5'],
+      set: val => Math.round(val * 10) / 10 // 4.666666, 46.6666, 47, 4.7
     },
     ratingsQuantity: {
       type: Number,
@@ -188,12 +189,12 @@ tourSchema.post(/^find/, function(docs, next) {
 
 //EXCLUDE SECRET TOUR
 //AGREGGATION MIDDLEWARE
-tourSchema.pre('aggregate', function(next) {
-  //this refers to current aggragation object
-  this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
-  //console.log(this);
-  next();
-});
+// tourSchema.pre('aggregate', function(next) {
+//   //this refers to current aggragation object
+//   this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
+//   //console.log(this);
+//   next();
+// });
 
 const Tour = mongoose.model('Tour', tourSchema);
 
